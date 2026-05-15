@@ -57,13 +57,15 @@ def index():
         push_time_str = request.form.get("push_time")
         tids = request.form.getlist("tid[]")
         app_entries = []
-        for tid in tids:
-            packages = request.form.getlist(f"packages_{tid}[]")
-            versions = request.form.getlist(f"versions_{tid}[]")
-            forces = request.form.getlist(f"force_{tid}[]")
+        for raw_tid in tids:
+            packages = request.form.getlist(f"packages_{raw_tid}[]")
+            versions = request.form.getlist(f"versions_{raw_tid}[]")
+            forces = request.form.getlist(f"force_{raw_tid}[]")
+            individual_tids = [t.strip() for t in raw_tid.split(",") if t.strip()]
             for package, version, force in zip(packages, versions, forces):
                 if package and version:  # skip empty
-                    app_entries.append((tid, package, version, force == "True"))
+                    for tid in individual_tids:
+                        app_entries.append((tid, package, version, force == "True"))
 
         # Validate and generate CSV
         try:
